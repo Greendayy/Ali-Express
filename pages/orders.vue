@@ -57,6 +57,6 @@ onMounted(() => {
   if (!user.value) {
     return navigateTo("/auth");
   }
-  setTtimeout(() => (userStore.isLoading = false), 200);
+  setTimeout(() => (userStore.isLoading = false), 200);
 });
 </script>
