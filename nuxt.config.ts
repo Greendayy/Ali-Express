@@ -1,6 +1,9 @@
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  devtools: {
+    enabled: true // or false to disable
+  },
   pages: true,
 
   modules: [
@@ -25,15 +28,16 @@ export default defineNuxtConfig({
       script: [
         { src: 'https://js.stripe.com/v3/',defer: true },
       ],
-      // meta: [
-      //   {
-      //     'http-equiv': 'Content-Security-Policy',
-      //     content: `
-      //       worker-src 'self' blob:;
-      //       connect-src 'self' https://api.stripe.com;
-      //     `,
-      //   },
-      // ],
+      meta: [
+        {
+          'http-equiv': 'Content-Security-Policy',
+          content: `
+            script-src 'self' https://js.stripe.com;
+            worker-src 'self' blob:;
+            connect-src 'self' https://api.stripe.com;
+          `,
+        },
+      ],
     }
   },
 
