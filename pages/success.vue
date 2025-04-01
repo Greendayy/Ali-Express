@@ -1,8 +1,5 @@
 <template>
-  <div
-    id="SuccessPage"
-    class="mt-4 max-w-[1200px] mx-auto px-2 min-h-[50vh] mt-[30px]"
-  >
+  <div id="SuccessPage" class="mt-8 max-w-[1200px] mx-auto px-2 min-h-[50vh]">
     <div class="bg-white w-full p-6 min-h-[150px]">
       <div class="flex items-center text-xl">
         <Icon
