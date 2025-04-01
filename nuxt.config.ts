@@ -24,7 +24,16 @@ export default defineNuxtConfig({
     head: {
       script: [
         { src: 'https://js.stripe.com/v3/',defer: true },
-      ]
+      ],
+      // meta: [
+      //   {
+      //     'http-equiv': 'Content-Security-Policy',
+      //     content: `
+      //       worker-src 'self' blob:;
+      //       connect-src 'self' https://api.stripe.com;
+      //     `,
+      //   },
+      // ],
     }
   },
 
