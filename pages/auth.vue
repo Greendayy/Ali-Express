@@ -19,13 +19,13 @@
         <div>Google</div>
       </button>
 
-      <button
+      <!-- <button
         @click="login('github')"
         class="mt-4 flex items-center justify-center gap-3 p-1.5 w-full border hover:bg-gray-100 rounded-full text-lg font-semibold"
       >
         <img class="w-full max-w-[30px]" src="/github-logo.png" />
         <div>Github</div>
-      </button>
+      </button> -->
     </div>
   </div>
 </template>
@@ -47,6 +47,14 @@ watchEffect(() => {
 const login = async (prov) => {
   const { data, error } = await client.auth.signInWithOAuth({
     provider: prov,
+    redirectTo: window.location.origin,
   });
+  if (error) {
+    console.error("Error logging in:", error);
+    return;
+  }
+  if (data) {
+    console.log("Login successful:", data);
+  }
 };
 </script>

@@ -69,7 +69,7 @@
               </li>
               <li
                 v-if="user"
-                @click="client.auth.signout()"
+                @click="client.auth.signOut()"
                 class="text-[13px] py-2 px-4 hover:bg-gray-200"
               >
                 Sign out

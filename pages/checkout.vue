@@ -23,11 +23,15 @@
                 </li>
                 <li class="flex items-center gap-2">
                   <div>Address:</div>
-                  <div class="font-bold">{{ currentAddress.data.address }}</div>
+                  <div class="font-bold">
+                    {{ currentAddress.data.address }}
+                  </div>
                 </li>
                 <li class="flex items-center gap-2">
                   <div>Zip Code:</div>
-                  <div class="font-bold">{{ currentAddress.data.zipcode }}</div>
+                  <div class="font-bold">
+                    {{ currentAddress.data.zipcode }}
+                  </div>
                 </li>
                 <li class="flex items-center gap-2">
                   <div>City:</div>
@@ -35,11 +39,14 @@
                 </li>
                 <li class="flex items-center gap-2">
                   <div>Country:</div>
-                  <div class="font-bold">{{ currentAddress.data.country }}</div>
+                  <div class="font-bold">
+                    {{ currentAddress.data.country }}
+                  </div>
                 </li>
               </ul>
             </div>
           </div>
+
           <NuxtLink
             v-else
             to="/address"
@@ -56,6 +63,7 @@
           </div>
         </div>
       </div>
+
       <div class="md:hidden block my-4" />
       <div class="md:w-[35%]">
         <div id="PlaceOrder" class="bg-white rounded-lg p-4">
@@ -116,7 +124,7 @@ const route = useRoute();
 
 definePageMeta({ middleware: "auth" });
 
-let stripe = null;
+// let stripe = null;
 let elements = null;
 let card = null;
 let form = null;
@@ -144,23 +152,22 @@ watchEffect(() => {
     return navigateTo("/auth");
   }
 });
+
 onMounted(async () => {
   isProcessing.value = true;
 
   userStore.checkout.forEach((item) => {
     total.value += item.price;
   });
-
-  // Add a console warning for CSP configuration
-  console.warn(
-    "Ensure your server's Content Security Policy (CSP) allows 'worker-src' and 'script-src' for Stripe resources."
-  );
 });
 
+const { stripe } = useClientStripe();
+
 watch(
+  stripe,
   () => total.value,
   () => {
-    if (total.value > 0) {
+    if (total.value > 0 && stripe.value) {
       stripeInit();
     }
   }
@@ -169,15 +176,10 @@ watch(
 const stripeInit = async () => {
   const runtimeConfig = useRuntimeConfig();
 
-  // Ensure stripePk is a valid string
-  if (!runtimeConfig.stripePk || typeof runtimeConfig.stripePk !== "string") {
-    console.error("Stripe public key is missing or invalid.");
-    showError("Payment configuration error. Please contact support.");
-    isProcessing.value = false;
-    return;
-  }
-
-  stripe = Stripe(runtimeConfig.stripePk);
+  console.log("Stripe:", stripe);
+  //面向对象编程
+  console.log("Stripe Key:", runtimeConfig.public.stripe.key);
+  // const { stripe } = useClientStripe();
 
   let res = await $fetch("/api/stripe/paymentintent", {
     method: "POST",
@@ -185,23 +187,27 @@ const stripeInit = async () => {
       amount: total.value,
     },
   });
+
   clientSecret = res.client_secret;
 
-  elements = stripe.elements();
-  var style = {
-    base: {
-      fontSize: "18px",
-    },
-    invalid: {
-      fontFamily: "Arial, sans-serif",
-      color: "#EE4B2B",
-      iconColor: "#EE4B2B",
-    },
-  };
-  card = elements.create("card", {
-    hidePostalCode: true,
-    style: style,
-  });
+  elements = stripe.elements({ clientSecret });
+
+  card = elements.create("payment");
+
+  // var style = {
+  //   base: {
+  //     fontSize: "18px",
+  //   },
+  //   invalid: {
+  //     fontFamily: "Arial, sans-serif",
+  //     color: "#EE4B2B",
+  //     iconColor: "#EE4B2B",
+  //   },
+  // };
+  // card = elements.create("card", {
+  //   hidePostalCode: true,
+  //   style: style,
+  // });
 
   // Stripe injects an iframe into the DOM
   card.mount("#card-element");
@@ -219,7 +225,6 @@ const stripeInit = async () => {
 const pay = async () => {
   if (currentAddress.value && currentAddress.value.data == "") {
     showError("Please add shipping address");
-    isProcessing.value = false; // Ensure isProcessing is reset
     return;
   }
   isProcessing.value = true;
@@ -227,14 +232,14 @@ const pay = async () => {
   let result = await stripe.confirmCardPayment(clientSecret, {
     payment_method: { card: card },
   });
+
   if (result.error) {
     showError(result.error.message);
-    isProcessing.value = false; // Reset isProcessing on error
+    isProcessing.value = false;
   } else {
     await createOrder(result.paymentIntent.id);
     userStore.cart = [];
     userStore.checkout = [];
-    isProcessing.value = false; // Reset isProcessing after success
     setTimeout(() => {
       return navigateTo("/success");
     }, 500);
@@ -256,6 +261,7 @@ const createOrder = async (stripeId) => {
     },
   });
 };
+
 const showError = (errorMsgText) => {
   let errorMsg = document.querySelector("#card-error");
 

@@ -1,5 +1,7 @@
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { defineNuxtConfig } from 'nuxt/config';
+
 export default defineNuxtConfig({
   devtools: {
     enabled: true // or false to disable
@@ -13,33 +15,37 @@ export default defineNuxtConfig({
     '@pinia-plugin-persistedstate/nuxt',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/supabase',
+    '@unlok-co/nuxt-stripe'
   ],
-  supabase: { redirect: false },
+  supabase: {
+    redirect: false
+    },
+  // runtimeConfig: {
+  //   public: {
+  //     stripe:{key: process.env.STRIPE_PUBLIC_KEY},
+  //     supabaseUrl: process.env.SUPABASE_URL,
+  //     supabaseKey: process.env.SUPABASE_KEY,
+  //   }
+  // },
   runtimeConfig: {
     public: {
-      stripePK: process.env.STRIPE_PK_KEY,
+      stripe: { key: process.env.STRIPE_PUBLIC_KEY },
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY,
-    }
+    },
+    stripe: {
+      key: process.env.STRIPE_SECRET_KEY,
+      options: {},
+    },
   },
-
-  app: {
-    head: {
-      script: [
-        { src: 'https://js.stripe.com/v3/',defer: true },
-      ],
-      meta: [
-        {
-          'http-equiv': 'Content-Security-Policy',
-          content: `
-            script-src 'self' https://js.stripe.com;
-            worker-src 'self' blob:;
-            connect-src 'self' https://api.stripe.com;
-          `,
-        },
-      ],
-    }
-  },
+  
+  // app: {
+  //   head: {
+  //     script: [
+  //       { src: 'https://js.stripe.com/v3/',defer: true },
+  //     ],
+  //   }
+  // },
 
   compatibilityDate: '2025-03-12'
 })

@@ -78,6 +78,8 @@ const user = useSupabaseUser();
 
 let selectedArray = ref([]);
 
+definePageMeta({ middleware: "auth" });
+
 onMounted(() => {
   setTimeout(() => (userStore.isLoading = false), 200);
 });
