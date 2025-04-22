@@ -15,23 +15,23 @@
   "devDependencies": {
     "@nuxt/types": "^2.18.1",
     "@nuxtjs/supabase": "^1.5.0",
-    "@nuxtjs/tailwindcss": "^6.6.5",
-    "@types/node": "^18.15.11",
-    "nuxt": "^3.3.3",
-    "nuxt-icon": "^0.3.3",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.0.4"
+    "@nuxtjs/tailwindcss": "^6.13.2",
+    "@pinia/nuxt": "^0.11.0",
+    "@types/node": "^22.14.1",
+    "nuxt": "^3.16.2",
+    "nuxt-icon": "^0.6.10",
+    "pinia": "^3.0.2",
+    "pinia-plugin-persistedstate": "^4.2.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
     "@iconify-icons/ic": "^1.2.13",
     "@iconify/vue": "^4.3.0",
-    "@nuxt/icon": "^1.11.0",
-    "@pinia-plugin-persistedstate/nuxt": "^1.1.1",
-    "@pinia/nuxt": "^0.4.8",
-    "@prisma/client": "^4.12.0",
+    "@nuxt/icon": "^1.12.0",
+    "@prisma/client": "^6.6.0",
     "@unlok-co/nuxt-stripe": "^4.0.2",
-    "nuxt-lodash": "^2.4.1",
-    "pinia": "^2.0.34",
-    "prisma": "^4.12.0"
+    "nuxt-lodash": "^2.5.3",
+    "prisma": "^6.6.0"
   }
 }

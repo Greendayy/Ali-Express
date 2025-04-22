@@ -1,4 +1,3 @@
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { defineNuxtConfig } from 'nuxt/config';
 
@@ -11,15 +10,12 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/icon',
     'nuxt-lodash',
-    '@pinia/nuxt',
-    '@pinia-plugin-persistedstate/nuxt',
     '@nuxtjs/tailwindcss',
     '@nuxtjs/supabase',
-    '@unlok-co/nuxt-stripe'
+    '@unlok-co/nuxt-stripe',
+    '@pinia/nuxt',
+    'pinia-plugin-persistedstate'
   ],
-  supabase: {
-    redirect: false
-    },
   // runtimeConfig: {
   //   public: {
   //     stripe:{key: process.env.STRIPE_PUBLIC_KEY},
@@ -30,13 +26,14 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       stripe: { key: process.env.STRIPE_PUBLIC_KEY },
-      supabaseUrl: process.env.SUPABASE_URL,
-      supabaseKey: process.env.SUPABASE_KEY,
     },
     stripe: {
       key: process.env.STRIPE_SECRET_KEY,
       options: {},
     },
+  },
+  supabase: {
+    redirect: false
   },
   
   // app: {
@@ -49,5 +46,3 @@ export default defineNuxtConfig({
 
   compatibilityDate: '2025-03-12'
 })
-
-
