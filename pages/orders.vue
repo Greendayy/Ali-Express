@@ -53,10 +53,10 @@ onBeforeMount(async () => {
   );
 });
 
-onMounted(() => {
-  if (!user.value) {
-    return navigateTo("/auth");
-  }
-  setTimeout(() => (userStore.isLoading = false), 200);
-});
+// onMounted(() => {
+//   if (!user.value) {
+//     return navigateTo("/auth");
+//   }
+//   setTimeout(() => (userStore.isLoading = false), 200);
+// });
 </script>

@@ -31,23 +31,25 @@
 </template>
 
 <script setup>
+
 definePageMeta({
   layout: false,
 });
 
 const client = useSupabaseClient();
 const user = useSupabaseUser();
-
+const redirectInfo = useSupabaseCookieRedirect()
 watchEffect(() => {
   if (user.value) {
-    return navigateTo("/");
+    const path = redirectInfo.pluck()
+    return navigateTo(path||"/");
   }
 });
 
 const login = async (prov) => {
   const { data, error } = await client.auth.signInWithOAuth({
     provider: prov,
-    redirectTo: window.location.origin,
+    redirectTo: window.location.origin+"/",
   });
   if (error) {
     console.error("Error logging in:", error);

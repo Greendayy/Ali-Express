@@ -33,9 +33,13 @@ export default defineNuxtConfig({
     },
   },
   supabase: {
-    redirect: false
+    redirectOptions:{
+      include:['/checkout'],
+      login: '/login',
+      callback: '/confirm',
+      saveRedirectToCookie: true,
+    }
   },
-  
   // app: {
   //   head: {
   //     script: [
@@ -44,5 +48,5 @@ export default defineNuxtConfig({
   //   }
   // },
 
-  compatibilityDate: '2025-03-12'
+  compatibilityDate: '2024-11-01',
 })
