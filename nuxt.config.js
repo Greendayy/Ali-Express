@@ -56,5 +56,10 @@ export default defineNuxtConfig({
     },
   },
 
+  // Nitro配置用于Vercel部署
+  nitro: {
+    preset: "vercel-edge",
+  },
+
   compatibilityDate: "2024-11-01",
 });
