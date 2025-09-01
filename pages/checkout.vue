@@ -117,19 +117,19 @@
 </template>
 
 <script setup>
+import { loadStripe } from '@stripe/stripe-js'
 import { useUserStore } from "~/stores/user";
-import { loadStripe } from "@stripe/stripe-js";
-import { useRuntimeConfig } from "nuxt/app";
+
 const userStore = useUserStore();
 const user = useSupabaseUser();
 const route = useRoute();
+const runtimeConfig = useRuntimeConfig();
 
 // definePageMeta({ middleware: "auth" });
 
-let stripe = null;
+const stripe = ref(null);
 let elements = null;
 let card = null;
-let form = null;
 let total = ref(0);
 let clientSecret = null;
 let currentAddress = ref(null);
@@ -161,67 +161,80 @@ onMounted(async () => {
   userStore.checkout.forEach((item) => {
     total.value += item.price;
   });
+
+  // Initialize Stripe after total is calculated
+  if (total.value > 0) {
+    await initializeStripe();
+  }
 });
 
-//支付
-// const { stripe } = useClientStripe();
-
-watch(
-  stripe,
-  () => total.value,
-  () => {
-    if (total.value > 0 && stripe.value) {
-      stripeInit();
+const initializeStripe = async () => {
+  if (stripe.value) return; // 避免重复初始化
+  
+  try {
+    // Use loadStripe from @stripe/stripe-js
+    stripe.value = await loadStripe(runtimeConfig.public.stripe.key);
+    
+    if (stripe.value && total.value > 0) {
+      await stripeInit();
     }
+  } catch (error) {
+    console.error('Error initializing Stripe:', error);
+    showError('Failed to initialize payment system');
+    isProcessing.value = false;
   }
-);
+};
 
 const stripeInit = async () => {
-  const runtimeConfig = useRuntimeConfig();
-  stripe = Stripe(runtimeConfig.public.stripe.key);
+  if (!stripe.value) return;
 
-  console.log("Stripe:", stripe);
-  //面向对象编程
-  console.log("Stripe Key:", runtimeConfig.public.stripe.key);
-  // const { stripe } = useClientStripe();
+  try {
+    console.log("Initializing Stripe Elements...");
+    console.log("Stripe Key:", runtimeConfig.public.stripe.key?.substring(0, 20) + '...');
 
-  let res = await $fetch("/api/stripe/paymentintent", {
-    method: "POST",
-    body: {
-      amount: total.value,
-    },
-  });
+    let res = await $fetch("/api/stripe/paymentintent", {
+      method: "POST",
+      body: {
+        amount: total.value,
+      },
+    });
 
-  clientSecret = res.client_secret;
+    clientSecret = res.client_secret;
 
-  elements = stripe.elements({ clientSecret });
+    elements = stripe.value.elements({ clientSecret });
 
-  var style = {
-    base: {
-      fontSize: "18px",
-    },
-    invalid: {
-      fontFamily: "Arial, sans-serif",
-      color: "#EE4B2B",
-      iconColor: "#EE4B2B",
-    },
-  };
-  card = elements.create("card", {
-    hidePostalCode: true,
-    style: style,
-  });
+    var style = {
+      base: {
+        fontSize: "18px",
+      },
+      invalid: {
+        fontFamily: "Arial, sans-serif",
+        color: "#EE4B2B",
+        iconColor: "#EE4B2B",
+      },
+    };
+    
+    card = elements.create("card", {
+      hidePostalCode: true,
+      style: style,
+    });
 
-  // Stripe injects an iframe into the DOM
-  card.mount("#card-element");
-  card.on("change", function (event) {
-    // Disable the Pay button if there are no card details in the Element
-    document.querySelector("button").disabled = event.empty;
-    document.querySelector("#card-error").textContent = event.error
-      ? event.error.message
-      : "";
-  });
+    // Stripe injects an iframe into the DOM
+    card.mount("#card-element");
+    card.on("change", function (event) {
+      // Disable the Pay button if there are no card details in the Element
+      document.querySelector("button").disabled = event.empty;
+      document.querySelector("#card-error").textContent = event.error
+        ? event.error.message
+        : "";
+    });
 
-  isProcessing.value = false;
+    isProcessing.value = false;
+  } catch (error) {
+    console.error('Error setting up Stripe elements:', error);
+    showError('Failed to setup payment form');
+    isProcessing.value = false;
+  }
 };
 
 const pay = async () => {
@@ -229,22 +242,34 @@ const pay = async () => {
     showError("Please add shipping address");
     return;
   }
+  
+  if (!stripe.value || !clientSecret) {
+    showError("Payment system not ready");
+    return;
+  }
+  
   isProcessing.value = true;
 
-  let result = await stripe.confirmCardPayment(clientSecret, {
-    payment_method: { card: card },
-  });
+  try {
+    let result = await stripe.value.confirmCardPayment(clientSecret, {
+      payment_method: { card: card },
+    });
 
-  if (result.error) {
-    showError(result.error.message);
+    if (result.error) {
+      showError(result.error.message);
+      isProcessing.value = false;
+    } else {
+      await createOrder(result.paymentIntent.id);
+      userStore.cart = [];
+      userStore.checkout = [];
+      setTimeout(() => {
+        return navigateTo("/success");
+      }, 500);
+    }
+  } catch (error) {
+    console.error('Payment error:', error);
+    showError('Payment failed. Please try again.');
     isProcessing.value = false;
-  } else {
-    await createOrder(result.paymentIntent.id);
-    userStore.cart = [];
-    userStore.checkout = [];
-    setTimeout(() => {
-      return navigateTo("/success");
-    }, 500);
   }
 };
 
