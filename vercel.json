@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "server/api/**/*.js": {
+      "maxDuration": 10
+    }
+  },
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install && npx prisma generate"
+}

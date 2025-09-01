@@ -1,7 +1,14 @@
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { prisma } from "~/lib/prisma.js";
 
 export default defineEventHandler(async (event) => {
-  let products = await prisma.products.findMany();
-  return products;
+  try {
+    let products = await prisma.products.findMany();
+    return products;
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to fetch products: ' + error.message
+    });
+  }
 });
