@@ -3,16 +3,16 @@ import { defineNuxtConfig } from "nuxt/config";
 
 export default defineNuxtConfig({
   devtools: {
-    enabled: true, // or false to disable
+    enabled: false, // 生产环境禁用
   },
   pages: true,
+  ssr: true,
 
   modules: [
     "@nuxt/icon",
     "nuxt-lodash",
     "@nuxtjs/tailwindcss",
     "@nuxtjs/supabase",
-    "@unlok-co/nuxt-stripe",
     "@pinia/nuxt",
     "pinia-plugin-persistedstate",
   ],
@@ -58,7 +58,7 @@ export default defineNuxtConfig({
 
   // Nitro配置用于Vercel部署
   nitro: {
-    preset: "vercel-edge",
+    preset: "vercel",
   },
 
   compatibilityDate: "2024-11-01",
