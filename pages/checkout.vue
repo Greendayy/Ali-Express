@@ -118,13 +118,15 @@
 
 <script setup>
 import { useUserStore } from "~/stores/user";
+import { loadStripe } from "@stripe/stripe-js";
+import { useRuntimeConfig } from "nuxt/app";
 const userStore = useUserStore();
 const user = useSupabaseUser();
 const route = useRoute();
 
 // definePageMeta({ middleware: "auth" });
 
-// let stripe = null;
+let stripe = null;
 let elements = null;
 let card = null;
 let form = null;
@@ -161,7 +163,8 @@ onMounted(async () => {
   });
 });
 
-const { stripe } = useClientStripe();
+//支付
+// const { stripe } = useClientStripe();
 
 watch(
   stripe,
@@ -175,6 +178,7 @@ watch(
 
 const stripeInit = async () => {
   const runtimeConfig = useRuntimeConfig();
+  stripe = Stripe(runtimeConfig.public.stripe.key);
 
   console.log("Stripe:", stripe);
   //面向对象编程
@@ -192,22 +196,20 @@ const stripeInit = async () => {
 
   elements = stripe.elements({ clientSecret });
 
-  card = elements.create("payment");
-
-  // var style = {
-  //   base: {
-  //     fontSize: "18px",
-  //   },
-  //   invalid: {
-  //     fontFamily: "Arial, sans-serif",
-  //     color: "#EE4B2B",
-  //     iconColor: "#EE4B2B",
-  //   },
-  // };
-  // card = elements.create("card", {
-  //   hidePostalCode: true,
-  //   style: style,
-  // });
+  var style = {
+    base: {
+      fontSize: "18px",
+    },
+    invalid: {
+      fontFamily: "Arial, sans-serif",
+      color: "#EE4B2B",
+      iconColor: "#EE4B2B",
+    },
+  };
+  card = elements.create("card", {
+    hidePostalCode: true,
+    style: style,
+  });
 
   // Stripe injects an iframe into the DOM
   card.mount("#card-element");

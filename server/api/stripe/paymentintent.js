@@ -1,13 +1,8 @@
-import { useServerStripe } from "#stripe/server";
+import Stripe from "stripe";
 
 export default defineEventHandler(async (event) => {
-  const runtimeConfig = useRuntimeConfig();
-  // console.log("Stripe Secret Key:", runtimeConfig.stripe.key);
-
   const body = await readBody(event);
-  const stripe = await useServerStripe(event);
-
-  // console.info("Stripe instance:", stripe);
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
   return await stripe.paymentIntents.create({
     amount: Number(body.amount),
@@ -15,3 +10,20 @@ export default defineEventHandler(async (event) => {
     automatic_payment_methods: { enabled: true },
   });
 });
+// import { useServerStripe } from "#stripe/server";
+
+// export default defineEventHandler(async (event) => {
+//   const runtimeConfig = useRuntimeConfig();
+//   // console.log("Stripe Secret Key:", runtimeConfig.stripe.key);
+
+//   const body = await readBody(event);
+//   const stripe = await useServerStripe(event);
+
+//   // console.info("Stripe instance:", stripe);
+
+//   return await stripe.paymentIntents.create({
+//     amount: Number(body.amount),
+//     currency: "usd",
+//     automatic_payment_methods: { enabled: true },
+//   });
+// });
